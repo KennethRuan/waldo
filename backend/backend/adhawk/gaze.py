@@ -42,6 +42,9 @@ class FrontendData:
         #determines if we are calibrating the plane
         self.plane_calibrate = False
 
+        #normalize the points onto the plane
+        self.normalize_points = False
+
     def shutdown(self):
         '''Shutdown the api and terminate the bluetooth connection'''
         self._api.shutdown()
@@ -50,7 +53,11 @@ class FrontendData:
         ''' Handles the latest et data '''
         if et_data.gaze is not None:
             xvec, yvec, zvec, vergence = et_data.gaze
-            self.px, self.py, self.pz = xvec, yvec, zvec
+            if self.normalize_points == True:
+                normalized_point = self.find_closest_point_on_plane (self, [xvec, yvec, zvec])
+                self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
+            else:
+                self.px, self.py, self.pz = xvec, yvec, zvec
             #print(f'Gaze={xvec:.2f},y={yvec:.2f},z={zvec:.2f},vergence={vergence:.2f}')
         
         if et_data.pupil_diameter is not None:

@@ -33,7 +33,7 @@ class FrontendData:
         #stores the time of the previous blink
         self.pblink = -1000
         
-        #coordinates for the three corners for the plane
+        #coordinates for the three corners for the plane, starting from the top left and going clockwise
         self.plane_points = []
 
         #constants for the plane in standard form: ax + by + cz + d = 0
@@ -43,6 +43,7 @@ class FrontendData:
         self.plane_calibrate = False
 
         #normalize the points onto the plane
+        #for the normalized points, top left will be (0,0)
         self.normalize_points = False
 
     def shutdown(self):
@@ -54,7 +55,7 @@ class FrontendData:
         if et_data.gaze is not None:
             xvec, yvec, zvec, vergence = et_data.gaze
             if self.normalize_points == True:
-                normalized_point = self.find_closest_point_on_plane (self, [xvec, yvec, zvec])
+                normalized_point = self.normalize_point (self, [xvec, yvec, zvec])
                 self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
             else:
                 self.px, self.py, self.pz = xvec, yvec, zvec
@@ -120,15 +121,14 @@ class FrontendData:
     def disable_point_normalization(self):
         self.normalize_points = False
 
-    def find_closest_point_on_plane(self, pt):
-        # Define the coordinates of the fourth point
-
+    def normalize_point(self, pt):
         # Calculate the distance from the fourth point to the global plane
         distance = abs(self.a * pt[0] + self.b * pt[1] + self.c * pt[2] + self.d) / np.sqrt(self.a**2 + self.b**2 + self.c**2)
 
         # Calculate the point on the plane closest to the fourth point
         closest_point_on_plane = pt - distance * np.array([self.a, self.b, self.c])
-
+        closest_point_on_plane -= np.array(self.plane_points[0])
+        closest_point_on_plane[1] *= -1 #flip the y-coord
         return closest_point_on_plane
 
     def _handle_tracker_disconnect(self):

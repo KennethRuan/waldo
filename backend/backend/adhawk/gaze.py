@@ -5,7 +5,7 @@ import numpy as np
 import adhawkapi
 import adhawkapi.frontend
 
-DOUBLE_BLINK_DURATION = 1.4
+DOUBLE_BLINK_DURATION = 1.2
 class FrontendData:
     ''' BLE Frontend '''
 

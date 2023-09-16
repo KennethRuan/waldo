@@ -41,17 +41,20 @@ const ImageCanvas = () => {
       console.log("scrolling left")
       // canvasRef.current.scrollLeft -= 5;
       // document.getElementById("App").scrollLeft += 5;
-      window.scrollTo({left: mouseX, behavior: 'smooth'});
+      if (mouseX < window.scrollX) {
+        window.scrollTo({left: mouseX, behavior: 'smooth'});
+      }
       // document.getElementById("canvas").style.transform = 'translateX(100px)';
       // console.log(document.getElementById("App").scrollLeft);
     } else if (x > 0.9 * window.innerWidth) {
       console.log("scrolling right")
-      // console.log(window.scrollX);
       window.scrollTo({left: mouseX, behavior: 'smooth'});
     }
-    if (y < 0.1 * window.innerHeight) {
+    if (y < 0.2 * window.innerHeight) {
       console.log("scrolling up")
-      window.scrollTo({top: mouseY, behavior: 'smooth'});
+      if (mouseY < window.scrollY) {
+        window.scrollTo({top: mouseY, behavior: 'smooth'});
+      }
     } else if (y > 0.8 * window.innerHeight) {
       console.log("scrolling down")
       window.scrollTo({top: mouseY, behavior: 'smooth'});

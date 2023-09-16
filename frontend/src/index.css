@@ -14,4 +14,17 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+} 
+
+/* .image {
+  width: 100000px;
+  height: 100px;
+  object-fit
+  overflow: auto;
+} */
+
+#canvas {
+  width: 120%;
+  overflow: auto;
+  transition: transform 0.3s ease-in-out;
 }

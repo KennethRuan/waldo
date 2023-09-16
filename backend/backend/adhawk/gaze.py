@@ -39,13 +39,11 @@ class FrontendData:
         #constants for the plane in standard form: ax + by + cz + d = 0
         self.a, self.b, self.c, self.d = 0,0,0,0
 
-        #determines if we are calibrating the plane
-        self.plane_calibrate = False
-
-        #normalize the points onto the plane
-        #for the normalized points, top left will be (0,0)
-        self.normalize_points = False
-
+        #0: null
+        #1: calibrating the points
+        #2: gameplay
+        self.state = 1
+        
     def shutdown(self):
         '''Shutdown the api and terminate the bluetooth connection'''
         self._api.shutdown()
@@ -54,7 +52,7 @@ class FrontendData:
         ''' Handles the latest et data '''
         if et_data.gaze is not None:
             xvec, yvec, zvec, vergence = et_data.gaze
-            if self.normalize_points == True:
+            if self.state == 2:
                 normalized_point = self.normalize_point (self, [xvec, yvec, zvec])
                 self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
             else:
@@ -72,11 +70,11 @@ class FrontendData:
 
             if timestamp - self.pblink < DOUBLE_BLINK_DURATION:
                 print(timestamp - self.pblink, 'Double Blink!')
-                print(self.px, self.py, self.pz)
-                if self.plane_calibrate == True:
+                if self.state == 1:
+                    print(self.px, self.py, self.pz)
                     self.plane_points.push([self.px,self.py,self.pz])
                     if len(self.plane_points) == 3:
-                        self.plane_calibrate = False
+                        self.state = 2
         
             self.pblink = timestamp
         
@@ -94,8 +92,10 @@ class FrontendData:
         self._api.set_event_control(adhawkapi.EventControlBit.BLINK, 1, callback=lambda *args: None)
         self._api.set_event_control(adhawkapi.EventControlBit.EYE_CLOSE_OPEN, 1, callback=lambda *args: None)
 
+    def updateState(self, state):
+        self.state = state
+
     def find_plane_param(self):
-        self.plane_calibrate = True
         point1 = self.plane_points[0]
         point2 = self.plane_points[1]
         point3 = self.plane_points[2]
@@ -114,12 +114,6 @@ class FrontendData:
 
         # The equation of the plane is now determined
         print(f"The equation of the plane is {normal_vector[0]}x + {normal_vector[1]}y + {normal_vector[2]}z + {self.d} = 0")
-    
-    def enable_point_normalization(self):
-        self.normalize_points = True
-
-    def disable_point_normalization(self):
-        self.normalize_points = False
 
     def normalize_point(self, pt):
         # Calculate the distance from the fourth point to the global plane

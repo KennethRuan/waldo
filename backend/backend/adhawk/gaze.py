@@ -114,6 +114,12 @@ class FrontendData:
         # The equation of the plane is now determined
         print(f"The equation of the plane is {normal_vector[0]}x + {normal_vector[1]}y + {normal_vector[2]}z + {self.d} = 0")
     
+    def enable_point_normalization(self):
+        self.normalize_points = True
+
+    def disable_point_normalization(self):
+        self.normalize_points = False
+
     def find_closest_point_on_plane(self, pt):
         # Define the coordinates of the fourth point
 

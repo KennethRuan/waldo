@@ -5,7 +5,7 @@ import numpy as np
 import adhawkapi
 import adhawkapi.frontend
 
-DOUBLE_BLINK_DURATION = 1
+DOUBLE_BLINK_DURATION = 1.4
 class FrontendData:
     ''' BLE Frontend '''
 
@@ -60,8 +60,9 @@ class FrontendData:
         point2 = np.array(point2)
         point3 = np.array(point3)
 
-        self.height = self.plane_points[2][1] - self.plane_points[1][1] #bottom right - top right (y coord)
-        self.width = self.plane_points[1][0] - self.plane_points[0][0] #top right - top left (x coord)
+        self.height = abs(point3[1] - point2[1]) #bottom right - top right (y coord)
+        self.width = abs(point2[0] - point1[0]) #top right - top left (x coord)
+        print(f"height {self.height}, width {self.width}")
         # Calculate two vectors on the plane
         vector1 = point2 - point1
         vector2 = point3 - point1
@@ -87,7 +88,7 @@ class FrontendData:
         distance = abs(self.a * pt[0] + self.b * pt[1] + self.c * pt[2] + self.d) / np.sqrt(self.a**2 + self.b**2 + self.c**2)
 
         # Calculate the point on the plane closest to the fourth point
-        closest_point_on_plane = pt - distance * np.array([self.a, self.b, self.c])
+        closest_point_on_plane = pt - distance * np.array([self.a, self.b, self.c]) / np.sqrt(self.a**2 + self.b**2 + self.c**2) #unit vector here?
         closest_point_on_plane -= np.array(self.plane_points[0])
         closest_point_on_plane[1] *= -1 #flip the y-coord
 
@@ -103,7 +104,6 @@ class FrontendData:
             if self.state == 2:
                 normalized_point = self.normalize_point ([xvec, yvec, zvec])
                 self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
-                print(100*normalized_point)
             else:
                 self.px, self.py, self.pz = xvec, yvec, zvec
             #print(f'Gaze={xvec:.2f},y={yvec:.2f},z={zvec:.2f},vergence={vergence:.2f}')
@@ -115,12 +115,12 @@ class FrontendData:
 
     def _handle_events(self, event_type, timestamp, *args):
         if event_type == adhawkapi.Events.BLINK:
-            print(timestamp, "Blink")
-
+            #print(timestamp, "Blink")
+            print(f"Blink:  {[self.px, self.py, self.pz]}")
             if timestamp - self.pblink < DOUBLE_BLINK_DURATION:
                 print(timestamp - self.pblink, 'Double Blink!')
-                if self.state == 1:
-                    print("Coord " + len(self.plane_points) + ": " + self.px, self.py, self.pz)
+                if self.state == 1: # in the actual application, double blink might be difficult to get consistently
+                    print(f"Coord  {len(self.plane_points)}:  {self.px}, {self.py}, {self.pz}")
                     self.plane_points.append([self.px,self.py,self.pz])
                     if len(self.plane_points) == 3:
                         print("Finished Calibrating")

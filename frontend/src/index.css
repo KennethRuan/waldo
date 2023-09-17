@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+*{
+  background-color: #e31914;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -16,15 +20,156 @@ code {
     monospace;
 } 
 
-/* .image {
-  width: 100000px;
-  height: 100px;
-  object-fit
-  overflow: auto;
-} */
-
 #canvas {
   width: 120%;
   overflow: auto;
   transition: transform 0.3s ease-in-out;
+}
+
+h1{
+  font-family: 'Bubblegum Sans', cursive;
+  text-align: center;
+  padding-bottom: 10px;
+  margin: 0px;
+}
+
+#welcome-waldo {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 40%;
+  margin-top:0;
+}
+
+#calibrate{
+  background-color: #FF9B50;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 15%;
+}
+
+#calibrateForReal {
+  position: fixed;
+  background-color: #FF9B50;
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: 3rem;
+  text-align: center;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#goToGame{
+  position: fixed;
+  background-color: #FF9B50;
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: 3rem;
+  text-align: center;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.text {
+  position: absolute;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #000;
+}
+
+.top-left {
+  top: 0;
+  left: 0;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+}
+
+.bottom-right {
+  position: fixed;
+  bottom: 0%;
+  right: 0%;
+
+}
+.centered-div {
+  position: fixed;
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: 3rem;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#decoration1{
+  position:fixed;
+  top:10%;
+  left:10%;
+  height:20%;
+  width:10%;
+}
+#decoration2{
+  position:fixed;
+  top:30%;
+  left:80%;
+  height:20%;
+  width:10%;
+}
+#decoration3{
+  position:fixed;
+  top:70%;
+  left:20%;
+  height:20%;
+  width:10%;
+}
+#decoration4{
+  position:fixed;
+  top:60%;
+  left:70%;
+  height:20%;
+  width:10%;
+}
+#decoration5{
+  position:fixed;
+  top:45%;
+  left:5%;
+  height:20%;
+  width:10%;
+}
+#decoration6{
+  position:fixed;
+  top:5%;
+  left:65%;
+  height:20%;
+  width:10%;
+}
+#decoration7{
+  position:fixed;
+  top:70%;
+  left: 85%;
+  height:20%;
+  width:10%;
+}
+#decoration8{
+  position:fixed;
+  top:10%;
+  left:40%;
+  height:20%;
+  width:10%;
+}
+#hitbox{
+  background: none;
+
+  position: absolute;
+  height:75px;
+  width:40px;
+  top: 57%;
+  left: 73%;
+  z-index: 1;
+}
+.imageGameOver{
+  height: 100vh;
+  margin:auto;
 }

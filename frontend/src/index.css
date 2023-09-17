@@ -274,6 +274,17 @@ h1{
 .gameOverPage {
   height: 100%;
   width: 100%;
+  z-index: 10;
   margin: auto;
   background-color: #FF9B50;
+}
+
+.percentage {
+  font-family: 'Oswald', Tahoma, Geneva, Verdana, sans-serif;
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  font-size: medium;
+  color: white;
+  font-weight: normal;
 }

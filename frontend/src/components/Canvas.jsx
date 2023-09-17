@@ -5,6 +5,7 @@ import magGlass from '../magGlass.png'
 import WaldoHeadshot from './WaldoHeadshot';
 import ScrollingImage from './ScrollingImage';
 import waldo1solved from '../waldo1solved.jpg'
+import waldoCircle from '../waldoCircle.png'
 
 // function getMousePosition() {
 //   const [mousePosition, setMousePosition] = useState({x: null, y: null});
@@ -28,7 +29,7 @@ import waldo1solved from '../waldo1solved.jpg'
 // }
 
 var area = 0;
-export var percentage;
+var percentage = 0;
 const ImageCanvas = () => {
 
   const [socket, setSocket] = useState(null);
@@ -38,60 +39,9 @@ const ImageCanvas = () => {
   const [waldoClicked, setWaldoClicked] = useState(false);
   const [xLog, setXLog] = useState([]); 
   const [yLog, setYLog] = useState([]); 
+
+  const [GameOver, setGameOver] = useState(false);
   
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'a' || event.key === 'A') {
-        // Handle 'a' key press
-        const startX = window.scrollX;
-        if (startX === 0) {
-          // Modify the magnifying glass position or perform other actions
-          const theMag = document.getElementById('magGlass');
-          const theMagX = Math.max(
-            -32,
-            parseFloat(getComputedStyle(theMag).getPropertyValue('left')) - 10
-          );
-          document.getElementById('magGlass').style.left = theMagX + 'px';
-        } else {
-          // Scroll to the left
-          window.scrollTo({ left: startX - 50, behavior: 'smooth' });
-        }
-      } else if (event.key === 'd' || event.key === 'D') {
-        // Handle 'd' key press
-        const startX = window.scrollX;
-        const theMag = document.getElementById('magGlass');
-        const theMagX = parseFloat(
-          getComputedStyle(theMag).getPropertyValue('left')
-        );
-        const middleX = window.innerWidth / 2 - 75;
-        if (theMagX < middleX) {
-          // Modify the magnifying glass position or perform other actions
-          const newMagX = theMagX + 10;
-          document.getElementById('magGlass').style.left = newMagX + 'px';
-        } else {
-          // Scroll to the right
-          window.scrollTo({ left: startX + 50, behavior: 'smooth' });
-        }
-      } else if (event.key === 'w' || event.key === 'W') {
-        // Handle 'w' key press
-        const startY = window.scrollY;
-        // Scroll up
-        window.scrollTo({ top: startY - 50, behavior: 'smooth' });
-      } else if (event.key === 's' || event.key === 'S') {
-        // Handle 's' key press
-        const startY = window.scrollY;
-        // Scroll down
-        window.scrollTo({ top: startY + 50, behavior: 'smooth' });
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
 
   useEffect(() => {
     const socket_ = io("localhost:5000/", {
@@ -127,7 +77,10 @@ const ImageCanvas = () => {
 
   useEffect(() => {
     if (!socket) return;
+    if (GameOver) return;
+
     socket.on("data", (data) => {
+      if (GameOver) return;
       if (data.data){
         setETHistory(prevETHistory => [...prevETHistory, data.data]);
         // console.log("Reading", data.data);
@@ -205,9 +158,6 @@ const ImageCanvas = () => {
   function clickWaldo(){
     setWaldoClicked(true)    
     traceBack()
-    setTimeout(() => {
-      window.location.href = 'GameOver';
-    }, 3000);
     //invis magnifying glass
     //change the background001
   }
@@ -217,6 +167,9 @@ const ImageCanvas = () => {
     const intervalID = setInterval(function() {
         if (index > xLog.length || index > yLog.length) {
           clearInterval(intervalID);
+          setTimeout(() => {
+            setGameOver(true);
+          }, 3000);
         }
         if (index > 0) {
           if(xLog[index] >0){
@@ -293,12 +246,15 @@ const ImageCanvas = () => {
 
 
   return (
-    <div className="canvasContainer">
-      <WaldoHeadshot />
-      <img class="waldoImage" src={waldoClicked ? waldo1solved : waldo1}></img>
-      <img id="magGlass" src={magGlass} style={{visibility: (waldoClicked ? 'hidden' : 'visible')}}/>
-      <a onClick={clickWaldo}><div id="hitbox"><button></button></div></a>
-    </div>
+    <>
+      <div className="canvasContainer">
+        <WaldoHeadshot />
+        {GameOver ? <div className="percentage"><h1> {(Math.round(percentage * 100) / 100).toFixed(2)}% Complete </h1></div> : null}
+        <img class="waldoImage" src={waldoClicked ? waldo1solved : waldo1}></img>
+        <img id="magGlass" src={magGlass} style={{visibility: (waldoClicked ? 'hidden' : 'visible')}}/>
+        <a onClick={clickWaldo}><div id="hitbox"><button></button></div></a>
+      </div>
+    </>
   )
 };
 

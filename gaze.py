@@ -56,7 +56,7 @@ import adhawkapi
 import adhawkapi.frontend
 
 DOUBLE_BLINK_DURATION = 1.2
-DEAD_RADIUS = 0.055
+DEAD_RADIUS = 0
 
 class FrontendData:
     ''' BLE Frontend '''

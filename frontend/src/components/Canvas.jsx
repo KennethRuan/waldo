@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { io } from "socket.io-client";
 import waldo1 from '../waldo1.jpg'
+import magGlass from '../magGlass.png'
 
 // function getMousePosition() {
 //   const [mousePosition, setMousePosition] = useState({x: null, y: null});
@@ -58,8 +59,39 @@ const ImageCanvas = () => {
     if (!socket) return;
     socket.on("data", (data) => {
       console.log("New ET data", data.data)
-      setETHistory(prevETHistory => [...prevETHistory, data.data]);
+
+      if (data.data){
+        setETHistory(prevETHistory => [...prevETHistory, data.data]);
+        console.log("Reading", data.data)
+
+        const triggerKeyDown = (key) => {
+          const event = new KeyboardEvent('keydown', {
+            key: key,
+            code: `Key${key.toUpperCase()}`,
+            keyCode: key.charCodeAt(0),
+            which: key.charCodeAt(0),
+            bubbles: true,
+          });
+          console.log("Event", event);
+          window.dispatchEvent(event);
+        };
+        
+        if (data.data[0] < 0) {
+          triggerKeyDown('a');
+        } else if (data.data.x > 0) {
+          triggerKeyDown('d');
+        }
+
+        if (data.data[1] < 0) {
+          triggerKeyDown('w');
+        } else if (data.data.y > 0) {
+          triggerKeyDown('s');
+        }
+
+      }
     });
+
+    
     return () => {
       socket.off("data", () => {
         console.log("data event was removed");
@@ -68,125 +100,64 @@ const ImageCanvas = () => {
   }, [socket]);
 
 
-  const canvasRef = useRef(null);
-  let mouseX;
-  let mouseY;
 
-  const handleMouseMove = (event) => {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
-    // console.log("X:", mouseX, "Y:", mouseY)
-    // scroll(mouseX, mouseY);
-  }
-
-  const scroll = (x, y) => {
-    // const scrollSpeed = 1;
-    if (x < 0.1 * window.innerWidth) {
-      console.log("scrolling left")
-      // canvasRef.current.scrollLeft -= 5;
-      // document.getElementById("App").scrollLeft += 5;
-      if (mouseX < window.scrollX) {
-        window.scrollTo({left: mouseX, behavior: 'smooth'});
+  document.addEventListener('keydown', function(event) {
+    // Check if the pressed key is "W" (case-insensitive)
+    if (event.key === 'd' || event.key === 'D') {
+      const startX = window.scrollX;
+      const theMag = document.getElementById('magGlass');
+      const theMagX = parseFloat(getComputedStyle(theMag).getPropertyValue('left'));
+      const middleX = window.innerWidth /  2 - 75;
+      if (theMagX < middleX) {
+        const newMagX = theMagX + 10;
+        document.getElementById('magGlass').style.left = newMagX + 'px';
+      } else {
+        window.scrollTo({left: startX+50, behavior: 'smooth'});
       }
-      // document.getElementById("canvas").style.transform = 'translateX(100px)';
-      // console.log(document.getElementById("App").scrollLeft);
-    } else if (x > 0.9 * window.innerWidth) {
-      console.log("scrolling right")
-      window.scrollTo({left: mouseX, behavior: 'smooth'});
     }
-    if (y < 0.2 * window.innerHeight) {
-      console.log("scrolling up")
-      if (mouseY < window.scrollY) {
-        window.scrollTo({top: mouseY, behavior: 'smooth'});
+  });
+
+  document.addEventListener('keydown', function(event) {
+    // Check if the pressed key is "W" (case-insensitive)
+    if (event.key === 's' || event.key === 'S') {
+      const startY = window.scrollY;
+      window.scrollTo({top: startY+50, behavior: 'smooth'});
+    }
+  });
+
+  document.addEventListener('keydown', function(event) {
+    // Check if the pressed key is "W" (case-insensitive)
+    if (event.key === 'w' || event.key === 'W') {
+      const startY = window.scrollY;
+      window.scrollTo({top: startY-50, behavior: 'smooth'});
+    }
+  });
+
+  document.addEventListener('keydown', function(event) {
+    // Check if the pressed key is "W" (case-insensitive)
+    if (event.key === 'a' || event.key === 'A') {
+      const startX = window.scrollX;
+      if (startX == 0) {
+        const theMag = document.getElementById('magGlass');
+        const theMagX = Math.max(-32, parseFloat(getComputedStyle(theMag).getPropertyValue('left')) - 10);
+        document.getElementById('magGlass').style.left = theMagX + 'px';
+      } else {
+        window.scrollTo({left: startX-50, behavior: 'smooth'});
       }
-    } else if (y > 0.8 * window.innerHeight) {
-      console.log("scrolling down")
-      window.scrollTo({top: mouseY, behavior: 'smooth'});
     }
-  }
+  });
 
-  useEffect(() => {
-    const intervalID = setInterval(() => {
-      scroll(mouseX, mouseY);
-    }, 100);
-  
-  })
+  document.addEventListener('mousedown', function(event) {
+    // console.log(event.clientX, event.clientY);
+    console.log(document.getElementById('magGlass').style.width);
+    console.log(window.scrollY);
+  });
 
-  // const mousePosition = getMousePosition();
-  // const canvasRef = useRef(null);
-  // const imageRef = useRef(null);
 
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   const ctx = canvas.getContext('2d');
-  //   const image = imageRef.current;
-
-  //   // Load the image into the canvas
-  //   image.onload = () => {
-  //     canvas.width = image.width;
-  //     canvas.height = image.height;
-  //     ctx.drawImage(image, 0, 0);
-  //   };
-
-  //   image.src = 'waldo1.jpg'; // Replace with your image URL
-
-  //   // Add mousemove event listener for automatic scrolling
-  //   canvas.addEventListener('mousemove', handleMouseMove);
-
-  //   return () => {
-  //     canvas.removeEventListener('mousemove', handleMouseMove);
-  //   };
-  // }, []);
-
-  // let scrollInterval;
-
-  // const handleMouseMove = (e) => {
-  //   const canvas = canvasRef.current;
-  //   const canvasRect = canvas.getBoundingClientRect();
-  //   const mouseX = e.clientX - canvasRect.left;
-  //   const mouseY = e.clientY - canvasRect.top;
-
-  //   const scrollSpeed = 5; // Adjust as needed
-
-  //   console.log('CanvasRect:', canvasRect.width, canvasRect.height)
-  //   console.log('MouseX:', mouseX);
-  //   console.log('MouseY:', mouseY);
-
-  //   clearInterval(scrollInterval);
-
-  //   if (mouseX < 10) {
-  //     console.log('Scrolling left');
-  //     scrollInterval = setInterval(() => {
-  //       canvas.scrollLeft -= scrollSpeed;
-  //     }, 10);
-  //   } else if (mouseX > canvas.width - 10) {
-  //     console.log('Scrolling right');
-  //     scrollInterval = setInterval(() => {
-  //       canvas.scrollLeft += scrollSpeed;
-  //     }, 10);
-  //   } else if (mouseY < 10) {
-  //     console.log('Scrolling up');
-  //     scrollInterval = setInterval(() => {
-  //       canvas.scrollTop -= scrollSpeed;
-  //     }, 10);
-  //   } else if (mouseY > canvas.height - 10) {
-  //     console.log('Scrolling down');
-  //     scrollInterval = setInterval(() => {
-  //       canvas.scrollTop += scrollSpeed;
-  //     }, 10);
-  //   }
-  // };
-
-  // return (
-  //   <div style={{ overflow: 'auto' }}>
-  //     <canvas ref={canvasRef}></canvas>
-  //     <img ref={imageRef} style={{ display: 'none' }} alt="Image" />
-  //   </div>
-  // );
-//  onMouseMove={(event) => handleMouseMove(event)}
   return (
-    <div id="canvas" ref={canvasRef} onMouseMove={(event) => handleMouseMove(event)}>
+    <div id="canvas">
       <img className="image" src={waldo1}></img>
+      <img id="magGlass" src={magGlass}></img>
       <a href="GameOver"><div id="hitbox"><button></button></div></a>
     </div>
   )

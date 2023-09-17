@@ -173,3 +173,13 @@ h1{
   height: 100vh;
   margin:auto;
 }
+
+#magGlass {
+  background: none;
+  height: 150px;
+  width: 150px;
+  top: 45%;
+  left: 45%;
+  position: fixed;
+  z-index: 2;
+}

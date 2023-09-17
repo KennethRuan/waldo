@@ -93,6 +93,8 @@ class FrontendData:
 
         #check if the last seq of blinks was a double blink or not
         self.doubleBlink = False
+
+        self.xvec, self.yvec = 0,0
     
     def updateState(self, state):
         self.state = state
@@ -151,6 +153,8 @@ class FrontendData:
             #     normalized_point = self.normalize_point ([xvec, yvec, zvec])
             #     self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
             # else:
+            self.xvec = xvec
+            self.yvec = yvec
             print(self.getVector(xvec,yvec))
             # print(f'Gaze={xvec:.5f},y={yvec:.5f}')
         
@@ -209,7 +213,7 @@ class FrontendData:
         print("Tracker disconnected")
 
     def emit_data_woo(self):
-        sio.emit("data", {"data": f"{self.px} {self.py} {self.pz}"})
+        sio.emit("data", {"data": [self.xvec, self.yvec]})
     
 
 def main():

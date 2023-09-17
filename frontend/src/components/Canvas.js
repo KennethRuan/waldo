@@ -143,6 +143,7 @@ const ImageCanvas = () => {
   return (
     <div id="canvas" ref={canvasRef} onMouseMove={(event) => handleMouseMove(event)}>
       <img className="image" src={waldo1}></img>
+      <a href="GameOver"><div id="hitbox"><button></button></div></a>
     </div>
   )
 };

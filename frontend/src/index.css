@@ -246,3 +246,34 @@ h1{
   background-image: url('./odlaw.png');
   background-size: cover;
 }
+
+#waldoCircle{
+  position: absolute;
+  top: 10%;
+  left: 42%;
+  height: 250px;
+  width: 250px;
+  margin: auto;
+}
+#congrats{
+  position: absolute;
+  top: 50%;
+  left: 42%;
+  color: white;
+  font-weight: bold;
+  font-size: 30px;
+}
+#stats{
+  position: absolute;
+  top: 60%;
+  left: 33%;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+}
+.gameOverPage {
+  height: 100%;
+  width: 100%;
+  margin: auto;
+  background-color: #FF9B50;
+}

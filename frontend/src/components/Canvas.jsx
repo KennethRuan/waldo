@@ -28,6 +28,7 @@ import waldo1solved from '../waldo1solved.jpg'
 // }
 
 var area = 0;
+export var percentage;
 const ImageCanvas = () => {
 
   const [socket, setSocket] = useState(null);
@@ -202,8 +203,11 @@ const ImageCanvas = () => {
   }
   
   function clickWaldo(){
+    setWaldoClicked(true)    
     traceBack()
-    setWaldoClicked(true)
+    setTimeout(() => {
+      window.location.href = 'GameOver';
+    }, 3000);
     //invis magnifying glass
     //change the background001
   }
@@ -228,7 +232,7 @@ const ImageCanvas = () => {
         }
         index++;
         console.log("dot");
-        var percentage = 100 * area / (window.innerHeight * window.innerWidth);
+        percentage = 100 * area / (window.innerHeight * window.innerWidth);
         console.log("area " + area);
         console.log(percentage + ".7%");
       }, 50)

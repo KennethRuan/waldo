@@ -49,13 +49,24 @@ h1{
   width: 15%;
 }
 
+#calibrateForReal {
+  position: fixed;
+  background-color: #FF9B50;
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: 3rem;
+  text-align: center;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 #goToGame{
   position: fixed;
   background-color: #FF9B50;
   font-family: 'Bubblegum Sans', cursive;
   font-size: 3rem;
   text-align: center;
-  top: 80%;
+  top: 90%;
   left: 50%;
   transform: translate(-50%, -50%);
 }

@@ -7,6 +7,7 @@ export default function Calibrate() {
             <div class="text top-right">Look here second</div>
             <div class="centered-div">Look to the top left (double blink), then top right (double blink), then bottom right (double blink).</div>
             <div class="text bottom-right">Look here third</div>
+            <button id="calibrateForReal" class="btn btn-success rounded-pill px-3" type="button">Calibrate</button>
             <a href="play">
                 <button id="goToGame" class="btn btn-success rounded-pill px-3" type="button">Click to Play</button>
             </a>

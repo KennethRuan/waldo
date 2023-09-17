@@ -3,6 +3,7 @@
 import json
 from flask import Flask
 from flask_socketio import SocketIO, emit
+import math
 
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
@@ -222,7 +223,8 @@ class FrontendData:
         print("Tracker disconnected")
 
     def emit_data_woo(self):
-        sio.emit("data", {"data": [self.xvec, self.yvec]})
+        if not math.isnan(self.xvec) and not math.isnan(self.yvec):
+            sio.emit("data", {"data": [self.xvec, self.yvec]})
     
 
 def main():

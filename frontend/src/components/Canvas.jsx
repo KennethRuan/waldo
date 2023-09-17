@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { io } from "socket.io-client";
 import waldo1 from '../waldo1.jpg'
 import magGlass from '../magGlass.png'
+import WaldoHeadshot from './WaldoHeadshot';
 import ScrollingImage from './ScrollingImage';
 
 // function getMousePosition() {
@@ -31,6 +32,9 @@ const ImageCanvas = () => {
   const [loading, setLoading] = useState(true);
   const [ETHistory, setETHistory] = useState([]); // x, y
   const [dataGrab, setDataGrab] = useState(null);
+
+  const [xLog, setXLog] = useState([]); 
+  const [yLog, setYLog] = useState([]); 
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -120,28 +124,40 @@ const ImageCanvas = () => {
   useEffect(() => {
     if (!socket) return;
     socket.on("data", (data) => {
-      console.log("New ET data", data.data)
-
       if (data.data){
         setETHistory(prevETHistory => [...prevETHistory, data.data]);
         console.log("Reading", data.data);
   
         // Assuming data.data[0] represents velocity for x-axis and data.data[1] for y-axis
         var [dx, dy] = data.data;
-        dx*=10
-        dy*=10
+
         // Calculate the new position for the magnifying glass based on velocity
         const magnifyingGlass = document.getElementById('magGlass');
         const currentX = parseFloat(getComputedStyle(magnifyingGlass).getPropertyValue('left'));
         const currentY = parseFloat(getComputedStyle(magnifyingGlass).getPropertyValue('top'));
-        
+
+        // ax, ay - adjusted x and y based on relative position of the magnifying glass
+        // const ax = (dx - currentX * (7/window.innerWidth)) * 10 
+        // const ay = (dy - currentX * (7/window.innerHeight)) * 10 
+        const ax = (dx > 0 ? 10: -10);
+        const ay = (dy > 0 ? 10: -10);
+
+        const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+        // console.log("ax", ax, "ay", ay)
+
         // Adjust the magnifying glass position based on velocity
-        const newX = currentX + dx;
-        const newY = currentY + dy;
-        if(dx>0) console.log("Right");
-        else if(dx<0) console.log("Left");
-        if(dy>0) console.log("Down");
-        else if(dy<0) console.log("Up");
+        const newX = clamp(currentX + ax, 40, window.innerWidth - 40 - 150);
+        const newY = clamp(currentY + ay, 40, window.innerHeight - 40 - 150);
+
+        setXLog(prevXLog => [...prevXLog, newX]);
+        setYLog(prevYLog => [...prevYLog, newY]);
+
+        if(ax>0) console.log("Right");
+        else if(ax<0) console.log("Left");
+
+        if(ay>0) console.log("Down");
+        else if(ay<0) console.log("Up");
 
 
         // Set the new position for the magnifying glass
@@ -157,7 +173,40 @@ const ImageCanvas = () => {
     };
   }, [socket]);
 
+  function drawLine(x1, y1, x2, y2) {
+    const distance = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+    const xMid = (x1+x2)/2 - distance / 2;
+    const yMid = (y1+y2)/2;
+    const slope = Math.atan2(y1 - y2, x1 - x2) * 180 / Math.PI;
+    const line = document.createElement('div');
+    line.className = 'line';
+    line.style.width = distance + 'px';
+    line.style.top = yMid + 'px';
+    line.style.left = xMid + 'px';
+    line.style.transform = "rotate("+slope+"deg)";
+    document.body.appendChild(line);
+    console.log("line");
+  }
 
+  function traceBack() {
+    console.log("HEREHRE", xLog, yLog);
+    var index = 0;
+    const intervalID = setInterval(function() {
+        if (index > xLog.length || index > yLog.length) {
+          clearInterval(intervalID);
+        }
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.left = xLog[index] + 'px';
+        dot.style.top = yLog[index] + 'px';
+        document.body.appendChild(dot);
+        if (index > 0) {
+          drawLine(xLog[index], yLog[index], xLog[index - 1], yLog[index - 1]);
+        }
+        index++;
+        console.log("dot");
+      }, 100)
+  }
 
   // document.addEventListener('keydown', function(event) {
   //   // Check if the pressed key is "W" (case-insensitive)
@@ -213,10 +262,11 @@ const ImageCanvas = () => {
 
 
   return (
-    <div id="canvas">
-      <img className="image" src={waldo1}></img>
+    <div className="canvasContainer">
+      <WaldoHeadshot />
+      <img class="waldoImage" src={waldo1}></img>
       <img id="magGlass" src={magGlass}></img>
-      <a href="GameOver"><div id="hitbox"><button></button></div></a>
+      <a onClick={traceBack}><div id="hitbox"><button></button></div></a>
     </div>
   )
 };

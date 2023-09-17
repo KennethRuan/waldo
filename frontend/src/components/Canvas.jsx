@@ -4,6 +4,7 @@ import waldo1 from '../waldo1.jpg'
 import magGlass from '../magGlass.png'
 import WaldoHeadshot from './WaldoHeadshot';
 import ScrollingImage from './ScrollingImage';
+import waldo1solved from '../waldo1solved.jpg'
 
 // function getMousePosition() {
 //   const [mousePosition, setMousePosition] = useState({x: null, y: null});
@@ -26,15 +27,17 @@ import ScrollingImage from './ScrollingImage';
 //   return mousePosition;
 // }
 
+var area = 0;
 const ImageCanvas = () => {
 
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ETHistory, setETHistory] = useState([]); // x, y
   const [dataGrab, setDataGrab] = useState(null);
-
+  const [waldoClicked, setWaldoClicked] = useState(false);
   const [xLog, setXLog] = useState([]); 
   const [yLog, setYLog] = useState([]); 
+  
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -126,7 +129,7 @@ const ImageCanvas = () => {
     socket.on("data", (data) => {
       if (data.data){
         setETHistory(prevETHistory => [...prevETHistory, data.data]);
-        console.log("Reading", data.data);
+        // console.log("Reading", data.data);
   
         // Assuming data.data[0] represents velocity for x-axis and data.data[1] for y-axis
         var [dx, dy] = data.data;
@@ -139,8 +142,18 @@ const ImageCanvas = () => {
         // ax, ay - adjusted x and y based on relative position of the magnifying glass
         // const ax = (dx - currentX * (7/window.innerWidth)) * 10 
         // const ay = (dy - currentX * (7/window.innerHeight)) * 10 
-        const ax = (dx > 0 ? 10: -10);
-        const ay = (dy > 0 ? 10: -10);
+        const adjustSpeed = (x) => {
+          if (x > 0.03) {
+            return 10;
+          }
+          else if (x < -0.03) {
+            return -10;
+          }
+          return 0;
+        }
+        
+        const ax = adjustSpeed(dx);
+        const ay = adjustSpeed(dy);
 
         const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
@@ -150,14 +163,14 @@ const ImageCanvas = () => {
         const newX = clamp(currentX + ax, 40, window.innerWidth - 40 - 150);
         const newY = clamp(currentY + ay, 40, window.innerHeight - 40 - 150);
 
-        setXLog(prevXLog => [...prevXLog, newX]);
-        setYLog(prevYLog => [...prevYLog, newY]);
+        setXLog(prevXLog => [...prevXLog, newX+75]);
+        setYLog(prevYLog => [...prevYLog, newY+75]);
 
-        if(ax>0) console.log("Right");
-        else if(ax<0) console.log("Left");
+        // if(ax>0) console.log("Right");
+        // else if(ax<0) console.log("Left");
 
-        if(ay>0) console.log("Down");
-        else if(ay<0) console.log("Up");
+        // if(ay>0) console.log("Down");
+        // else if(ay<0) console.log("Up");
 
 
         // Set the new position for the magnifying glass
@@ -180,14 +193,20 @@ const ImageCanvas = () => {
     const slope = Math.atan2(y1 - y2, x1 - x2) * 180 / Math.PI;
     const line = document.createElement('div');
     line.className = 'line';
-    line.style.width = distance + 'px';
+    // line.style.width = distance + 'px';
     line.style.top = yMid + 'px';
     line.style.left = xMid + 'px';
     line.style.transform = "rotate("+slope+"deg)";
     document.body.appendChild(line);
     console.log("line");
   }
-
+  
+  function clickWaldo(){
+    traceBack()
+    setWaldoClicked(true)
+    //invis magnifying glass
+    //change the background001
+  }
   function traceBack() {
     console.log("HEREHRE", xLog, yLog);
     var index = 0;
@@ -195,19 +214,27 @@ const ImageCanvas = () => {
         if (index > xLog.length || index > yLog.length) {
           clearInterval(intervalID);
         }
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dot.style.left = xLog[index] + 'px';
-        dot.style.top = yLog[index] + 'px';
-        document.body.appendChild(dot);
         if (index > 0) {
-          drawLine(xLog[index], yLog[index], xLog[index - 1], yLog[index - 1]);
+          if(xLog[index] >0){
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.left = xLog[index] + 'px';
+            dot.style.top = yLog[index] + 'px';
+            area += 40 * 10;
+            document.body.appendChild(dot);
+            drawLine(xLog[index], yLog[index], xLog[index - 1], yLog[index - 1]);
+            console.log(xLog[index]);
+          }
         }
         index++;
         console.log("dot");
-      }, 100)
+        var percentage = 100 * area / (window.innerHeight * window.innerWidth);
+        console.log("area " + area);
+        console.log(percentage + ".7%");
+      }, 50)
+      
   }
-
+  
   // document.addEventListener('keydown', function(event) {
   //   // Check if the pressed key is "W" (case-insensitive)
   //   if (event.key === 'd' || event.key === 'D') {
@@ -264,9 +291,9 @@ const ImageCanvas = () => {
   return (
     <div className="canvasContainer">
       <WaldoHeadshot />
-      <img class="waldoImage" src={waldo1}></img>
-      <img id="magGlass" src={magGlass}></img>
-      <a onClick={traceBack}><div id="hitbox"><button></button></div></a>
+      <img class="waldoImage" src={waldoClicked ? waldo1solved : waldo1}></img>
+      <img id="magGlass" src={magGlass} style={{visibility: (waldoClicked ? 'hidden' : 'visible')}}/>
+      <a onClick={clickWaldo}><div id="hitbox"><button></button></div></a>
     </div>
   )
 };

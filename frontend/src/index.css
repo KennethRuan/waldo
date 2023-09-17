@@ -222,19 +222,21 @@ h1{
 }
 
 .dot {
-  width: 2px;
-  height: 2px;
-  background-color: black;
+  width: 40px;
+  height: 40px;
+  background-color: #FF9B50;
   position: absolute;
   border-radius: 50%;
+  opacity: 50%;
   z-index: 3;
 }
 
 .line {
-  height: 8px;
+  height: 0px;
+  width: 0px;
   background-color: black;
   position: absolute;
-  border-radius: 20%;
+  border-radius: 50%;
   z-index: 3;
 }
 

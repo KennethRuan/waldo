@@ -153,9 +153,10 @@ class FrontendData:
             #     normalized_point = self.normalize_point ([xvec, yvec, zvec])
             #     self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
             # else:
-            self.xvec = xvec
-            self.yvec = yvec
-            print(self.getVector(xvec,yvec))
+            v = self.getVector(xvec,yvec)
+            self.xvec = v[0]
+            self.yvec = v[1]
+            print(v)
             # print(f'Gaze={xvec:.5f},y={yvec:.5f}')
         
         if et_data.pupil_diameter is not None:
@@ -171,7 +172,7 @@ class FrontendData:
         else:
             vx = x
             vy = y
-        return [vx,vy]
+        return [vx,-vy]
 
     def _handle_events(self, event_type, timestamp, *args):
         if event_type == adhawkapi.Events.BLINK:

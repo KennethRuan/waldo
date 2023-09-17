@@ -222,7 +222,7 @@ def main():
     #     server.send_msg("data", {"data": "This is a test"})
 
     ''' AdHawk entrypoint '''
-    frontend = FrontendData(server)
+    frontend = FrontendData()
     try:
         while True:
             sio.sleep(1)

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { io } from "socket.io-client";
 import waldo1 from '../waldo1.jpg'
 
 // function getMousePosition() {
@@ -24,36 +25,37 @@ import waldo1 from '../waldo1.jpg'
 
 const ImageCanvas = () => {
 
-  const [socketInstance, setSocketInstance] = useState("");
+  const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ETHistory, setETHistory] = useState([]); // x, y
 
   useEffect(() => {
-    const socket = io("localhost:5000/", {
+    const socket_ = io("localhost:5000/", {
       transports: ["websocket"],
       cors: {
         origin: "http://localhost:3000/",
       },
     });
 
-    setSocketInstance(socket);
+    setSocket(socket_);
 
-    socket.on("connect", (data) => {
+    socket_.on("connect", (data) => {
       console.log(data);
     });
 
     setLoading(false);
 
-    socket.on("disconnect", (data) => {
+    socket_.on("disconnect", (data) => {
       console.log(data);
     });
 
     return function cleanup() {
-      socket.disconnect();
+      socket_.disconnect();
     };
   }, []);
 
   useEffect(() => {
+    if (!socket) return;
     socket.on("data", (data) => {
       console.log("New ET data", data.data)
       setETHistory(prevETHistory => [...prevETHistory, data.data]);

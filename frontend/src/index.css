@@ -1,6 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@600&display=swap');
+
 
 /* *{
   background-color: #e31914;
@@ -35,12 +37,22 @@ h1{
   margin-top:0;
 }
 
-#calibrate{
-  background-color: #FF9B50;
+.calibrate{
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+  font-family: 'Oswald', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
   width: 15%;
+}
+
+.calibrate:hover{
+  color:#000000;
+  transform: translate(-50%, -5%) scale(1.2);
+  transition: linear 0.2s;
+  cursor: pointer;
 }
 
 #calibrateForReal {
@@ -224,4 +236,11 @@ h1{
   position: absolute;
   border-radius: 20%;
   z-index: 3;
+}
+
+.homepage {
+  width: 100%;
+  height: 100%;
+  background-image: url('./odlaw.png');
+  background-size: cover;
 }

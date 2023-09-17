@@ -47,7 +47,7 @@ import adhawkapi
 import adhawkapi.frontend
 
 DOUBLE_BLINK_DURATION = 1.2
-
+DEAD_RADIUS = 0.055
 
 class FrontendData:
     ''' BLE Frontend '''
@@ -151,12 +151,23 @@ class FrontendData:
             #     normalized_point = self.normalize_point ([xvec, yvec, zvec])
             #     self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
             # else:
-            print(f'Gaze={xvec:.2f},y={yvec:.2f}')
+            print(self.getVector(xvec,yvec))
+            # print(f'Gaze={xvec:.5f},y={yvec:.5f}')
         
         if et_data.pupil_diameter is not None:
             if et_data.eye_mask == adhawkapi.EyeMask.BINOCULAR:
                 rdiameter, ldiameter = et_data.pupil_diameter
                 #print(f'Pu  pil diameter: Left={ldiameter:.2f} Right={rdiameter:.2f}')
+    
+    def getVector(self,x,y):
+        vx, vy = 0,0
+        if (x**2 + y ** 2) < DEAD_RADIUS**2:
+            vx = 0
+            vy = 0
+        else:
+            vx = x
+            vy = y
+        return [vx,vy]
 
     def _handle_events(self, event_type, timestamp, *args):
         if event_type == adhawkapi.Events.BLINK:

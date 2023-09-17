@@ -8,6 +8,7 @@ app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
 
 server = None
+frontend = None
 
 @sio.on("connect")
 def connect():
@@ -17,6 +18,11 @@ def connect():
 @sio.on("message")
 def message(data):
     print("message ", data)
+
+@sio.on("grabData")
+def emitData():
+    print("someone requested data")
+    frontend.emit_data_woo()
 
 @sio.on("disconnect")
 def disconnect():
@@ -40,6 +46,8 @@ class Server(object):
     def wait(self):
         self.thread.join()
 
+    def emit_data_woo(self):
+        sio.emit("data", {"data": "This is a test"})
 
 import time
 import numpy as np
@@ -218,7 +226,7 @@ class FrontendData:
     
 
 def main():
-    global server
+    global server, frontend
     server = Server()
     server.start()
 
@@ -228,10 +236,10 @@ def main():
 
     ''' AdHawk entrypoint '''
     frontend = FrontendData()
+
     try:
         while True:
             sio.sleep(1)
-            frontend.emit_data_woo()
     except (KeyboardInterrupt, SystemExit):
         frontend.shutdown()
 

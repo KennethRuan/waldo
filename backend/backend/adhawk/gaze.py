@@ -6,6 +6,8 @@ import adhawkapi
 import adhawkapi.frontend
 
 DOUBLE_BLINK_DURATION = 1.2
+
+
 class FrontendData:
     ''' BLE Frontend '''
 
@@ -47,6 +49,9 @@ class FrontendData:
         
         #screen sizes
         self.height, self.width = 0,0
+
+        #check if the last seq of blinks was a double blink or not
+        self.doubleBlink = False
     
     def updateState(self, state):
         self.state = state
@@ -60,8 +65,8 @@ class FrontendData:
         point2 = np.array(point2)
         point3 = np.array(point3)
 
-        self.height = abs(point3[1] - point2[1]) #bottom right - top right (y coord)
-        self.width = abs(point2[0] - point1[0]) #top right - top left (x coord)
+        self.width = max(point3[0], point2[0], point1[0]) - min(point3[0], point2[0], point2[0]) #bottom right - top right (y coord)
+        self.height = max(point3[1], point2[1], point1[1]) - min(point3[1], point2[1], point2[1]) #bottom right - top right (y coord)
         print(f"height {self.height}, width {self.width}")
         # Calculate two vectors on the plane
         vector1 = point2 - point1
@@ -85,10 +90,10 @@ class FrontendData:
     def normalize_point(self, pt):
         # Calculate the distance from the fourth point to the global plane
         pt = np.array(pt)
-        distance = abs(self.a * pt[0] + self.b * pt[1] + self.c * pt[2] + self.d) / np.sqrt(self.a**2 + self.b**2 + self.c**2)
+        x0,y0,z0 = pt[0], pt[1], pt[2]
+        t = - (self.a*x0 + self.b*y0 + self.c*z0)/(self.a**2 + self.b ** 2+ self.c**2)
 
-        # Calculate the point on the plane closest to the fourth point
-        closest_point_on_plane = pt - distance * np.array([self.a, self.b, self.c]) / np.sqrt(self.a**2 + self.b**2 + self.c**2) #unit vector here?
+        closest_point_on_plane = [x0 + t*self.a,y0 + t*self.b,z0 + t*self.c]
         closest_point_on_plane -= np.array(self.plane_points[0])
         closest_point_on_plane[1] *= -1 #flip the y-coord
 
@@ -101,12 +106,11 @@ class FrontendData:
         ''' Handles the latest et data '''
         if et_data.gaze is not None:
             xvec, yvec, zvec, vergence = et_data.gaze
-            if self.state == 2:
-                normalized_point = self.normalize_point ([xvec, yvec, zvec])
-                self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
-            else:
-                self.px, self.py, self.pz = xvec, yvec, zvec
-            #print(f'Gaze={xvec:.2f},y={yvec:.2f},z={zvec:.2f},vergence={vergence:.2f}')
+            # if self.state == 2:
+            #     normalized_point = self.normalize_point ([xvec, yvec, zvec])
+            #     self.px, self.py, self.pz = normalized_point[0], normalized_point[1], normalized_point[2]
+            # else:
+            print(f'Gaze={xvec:.2f},y={yvec:.2f}')
         
         if et_data.pupil_diameter is not None:
             if et_data.eye_mask == adhawkapi.EyeMask.BINOCULAR:
@@ -116,22 +120,28 @@ class FrontendData:
     def _handle_events(self, event_type, timestamp, *args):
         if event_type == adhawkapi.Events.BLINK:
             #print(timestamp, "Blink")
-            print(f"Blink:  {[self.px, self.py, self.pz]}")
-            if timestamp - self.pblink < DOUBLE_BLINK_DURATION:
-                print(timestamp - self.pblink, 'Double Blink!')
-                if self.state == 1: # in the actual application, double blink might be difficult to get consistently
-                    print(f"Coord  {len(self.plane_points)}:  {self.px}, {self.py}, {self.pz}")
-                    self.plane_points.append([self.px,self.py,self.pz])
-                    if len(self.plane_points) == 3:
-                        print("Finished Calibrating")
-                        self.find_plane_param()
-                        self.state = 2
+            # if self.doubleBlink == True:
+            #     if self.state == 1: # in the actual application, double blink might be difficult to get consistently
+            #         print(f"Coord  {len(self.plane_points)}:  {self.px}, {self.py}, {self.pz}")
+            #         self.plane_points.append([self.px,self.py,self.pz])
+            #         if len(self.plane_points) == 3:
+            #             print("Finished Calibrating")
+            #             self.find_plane_param()
+            #             self.state = 2
+            #     self.doubleBlink = False
+        
+            # print(f"Blink:  {[self.px, self.py, self.pz]}")
+            # if self.state == 2:
+            #     print(f"Normalized {self.normalize_point([self.px,self.py,self.pz])}")
+            # if timestamp - self.pblink < DOUBLE_BLINK_DURATION:
+            #     print(timestamp - self.pblink, 'Double Blink!')
+            #     self.doubleBlink = True
         
             self.pblink = timestamp
         
     def _handle_tracker_connect(self):
         print("Tracker connected")
-        self._api.set_et_stream_rate(60, callback=lambda *args: None)
+        self._api.set_et_stream_rate(20, callback=lambda *args: None)
 
         self._api.set_et_stream_control([
             adhawkapi.EyeTrackingStreamTypes.GAZE,
